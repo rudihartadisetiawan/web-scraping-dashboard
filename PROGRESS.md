@@ -157,14 +157,18 @@
 - Verifikasi `analysis/test_analysis.py` — semua smoke test **PASS** dengan data campuran (dummy + eBay sandbox).
 - Buat `README.md` — arsitektur, keputusan teknis, tech stack, project structure, cara run lokal, roadmap.
 - Buat `CASE_STUDY.md` — sudut pandang reseller/dropshipper, sebelum/sesudah, contoh konkret, trust signals.
+- **Migrasi DB provider: Alibaba Cloud PolarDB → Aiven for MySQL** (keputusan user, setup lebih straightforward).
+  - Update `PRD.md`, `PROGRESS.md`, `README.md` — semua referensi provider.
+  - `scraper/db.py`: tambah SSL/TLS support — `MYSQL_SSL_MODE` env var (DISABLED/REQUIRED/VERIFY_CA), connect_args untuk PyMySQL SSL dict.
+  - `dashboard/app.py`: bridge `st.secrets` → `os.environ` agar db.py bekerja di Streamlit Cloud (yang inject via st.secrets, bukan env var).
+  - `.env.example`: tambah `MYSQL_SSL_MODE` + `MYSQL_SSL_CA` placeholder.
+  - `.github/workflows/daily_fetch.yml`: tambah `MYSQL_SSL_MODE` secret ke env block.
 
 **Blocker:**
-- Aiven MySQL belum setup (butuh daftar akun).
-- GitHub Actions secrets belum di-set (tergantung Aiven).
-- Streamlit Cloud belum deploy (tergantung DB cloud).
+- GitHub Actions secrets belum di-set (9 vars: `EBAY_CLIENT_ID`, `EBAY_CLIENT_SECRET`, `EBAY_ENVIRONMENT`, `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_SSL_MODE`).
+- Streamlit Cloud belum deploy.
 
 **Next:**
-- Setup Aiven MySQL → dapat connection string → set GitHub Secrets (8 vars + SSL) → trigger workflow_dispatch.
-- Deploy Streamlit Cloud dengan secrets `MYSQL_*`.
-- Trigger `workflow_dispatch` verifikasi pipeline end-to-end.
-- Setelah 7+ hari data: screenshot dashboard, link live demo.
+- Set 9 GitHub Actions secrets (lihat blocker di atas) → trigger `workflow_dispatch` manual untuk verifikasi pipeline end-to-end.
+- Deploy Streamlit Cloud: connect repo, set secrets (`MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_SSL_MODE`).
+- Setelah 7+ hari data: screenshot dashboard, link live demo di README.
