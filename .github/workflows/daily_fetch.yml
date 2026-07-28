@@ -21,8 +21,7 @@ jobs:
           cache: "pip"
 
       - name: Install dependencies
-        run: |
-          pip install sqlalchemy pymysql requests python-dotenv
+        run: pip install -r requirements.txt
 
       - name: Run eBay fetcher
         env:

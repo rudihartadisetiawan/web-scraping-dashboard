@@ -101,29 +101,70 @@
 
 ---
 
-## ➡️ Next session (setelah eBay approval):
+## Session 6 — 2026-07-28 (eBay sandbox live test + git init)
 
-### 1. Live test eBay fetcher
-```
-cp .env.example .env                                 # isi kredensial asli
-python scraper/test_fetcher.py                        # verifikasi token + search
-python scraper/fetcher.py                             # full pipeline: insert ke MySQL
-python analysis/test_analysis.py                      # verifikasi analysis jalan
-```
+**Selesai:**
 
-### 2. Deploy Streamlit Cloud
-- Push repo ke GitHub
-- Sambungkan ke Streamlit Community Cloud
-- Set secrets: `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`
-- Dashboard live di URL publik
+### 1. Live eBay sandbox fetch — SUCCESS
+- Fix `test_fetcher.py`: non-dry-run path sekarang panggil `run_fetch(dry_run=False)` (sebelumnya cuma test token+search tanpa insert DB).
+- Fix `fetcher.py`: `__main__` block sekarang panggil `load_dotenv()` agar standalone run bisa baca `.env`.
+- `python scraper/test_fetcher.py` (no `--dry-run`):
+  - Token OAuth sandbox berhasil (length=1924).
+  - eBay sandbox Browse API: 12 item per page × 5 pages = 60 item attempts.
+  - **4 gagal di page 1** (connection refused MySQL — pool warm-up di localhost), **56 sukses** (upsert produk + insert histori_harga).
+  - Catatan: eBay sandbox tidak benar-benar paginate — semua page return 12 item yang sama. Di production API pagination berfungsi normal.
+- Verifikasi MySQL: **25 produk** (13 seed dummy + 12 eBay sandbox), **147 rows histori_harga** (91 seed + 56 fetch tadi).
+- `python analysis/test_analysis.py` **PASS** — semua fungsi analysis bekerja dengan data campuran:
+  - `total_products=25`, `avg_price=152.13`, `products_with_drops=3` (dari data dummy).
+  - Alerts, trends, value-for-money, seller comparison — semua return data valid.
 
-### 3. GitHub Actions secrets
-- Set di repo Settings → Secrets: `EBAY_CLIENT_ID`, `EBAY_CLIENT_SECRET`, `EBAY_ENVIRONMENT`, `MYSQL_*`
-- Trigger manual `workflow_dispatch` pertama, verifikasi run sukses
-- Biarkan cron daily berjalan — target 7 hari data berturut-turut
+### 2. Git init + workflow ready
+- `git init` + `git branch -m main` (default branch **main**, bukan master — pelajaran dari project kedua).
+- Commit pertama: 27 files, semua kode yang sudah dibangun + `.github/workflows/daily_fetch.yml`.
+- `.gitignore` verified: `.env`, `venv/`, `__pycache__/`, `*.db` excluded. Tidak ada credential hardcoded di file yang di-track.
 
-### 4. Setelah data ≥7 hari
-- Screenshot dashboard (validasi PRD Bagian 6 — pastikan tidak generic AI look)
-- README.md (masalah yang diselesaikan, arsitektur, screenshot, link demo, keputusan teknis)
-- CASE_STUDY.md (dari sudut pandang "masalah bisnis reseller/dropshipper")
-- Siapkan untuk showcase portofolio
+### 3. Analysis module verified
+- Module `analysis/` sudah dibangun di Session 4, mencakup semua fitur PRD Bagian 4:
+  - `trends.py` — `get_price_trend(product_id, days)`, `get_all_product_trends(days)`
+  - `alerts.py` — `detect_price_drops(days, threshold_pct)`, `get_top_deals(limit)`
+  - `rankings.py` — `value_for_money_rank(limit)`, `seller_price_comparison(keyword)`
+  - `summary.py` — `get_summary_stats()`
+- Semua query parameterized (`text()` + `params=`), aman dari SQL injection.
+- Test smoke lulus dengan data live + dummy campuran.
+
+### 4. GitHub push + workflow verified
+- `git push -u origin main` ke `https://github.com/rudihartadisetiawan/web-scraping-dashboard.git`.
+- Workflow `Daily Price Fetch` (ID `322106486`) **active** di GitHub Actions — cron 06:00 UTC + `workflow_dispatch`.
+
+**Blocker:**
+- GitHub Actions secrets (`EBAY_*` + `MYSQL_*`) belum di-set — workflow akan fail kalau dijalankan sekarang.
+- Alibaba Cloud PolarDB belum setup (sesuai Session 1). GitHub Actions runner tidak bisa akses MySQL `127.0.0.1`. Tanpa DB cloud, workflow tidak bisa insert data.
+
+**Next:**
+- Setup Alibaba Cloud PolarDB MySQL (always free tier) → ambil connection string → set sebagai GitHub Secrets.
+- Set 8 GitHub Actions secrets → trigger `workflow_dispatch` manual untuk verifikasi.
+- Deploy Streamlit Cloud dengan secrets `MYSQL_*`.
+- Setelah data ≥7 hari: screenshot dashboard, README, CASE_STUDY.
+
+---
+
+## Session 7 — 2026-07-29
+
+**Selesai:**
+- Buat `requirements.txt` (sqlalchemy, pymysql, requests, python-dotenv, pandas, streamlit) — dibutuhkan Streamlit Cloud dan GitHub Actions.
+- Update `.github/workflows/daily_fetch.yml` — `pip install` pakai `requirements.txt`, bukan hardcoded deps.
+- Verifikasi dashboard boot clean: import `dashboard.app` tanpa error, DB accessible (25 produk, 147 rows).
+- Verifikasi `analysis/test_analysis.py` — semua smoke test **PASS** dengan data campuran (dummy + eBay sandbox).
+- Buat `README.md` — arsitektur, keputusan teknis, tech stack, project structure, cara run lokal, roadmap.
+- Buat `CASE_STUDY.md` — sudut pandang reseller/dropshipper, sebelum/sesudah, contoh konkret, trust signals.
+
+**Blocker:**
+- Alibaba Cloud PolarDB MySQL belum setup (butuh daftar akun).
+- GitHub Actions secrets belum di-set (tergantung PolarDB).
+- Streamlit Cloud belum deploy (tergantung DB cloud).
+
+**Next:**
+- Setup Alibaba Cloud PolarDB → dapat connection string → set GitHub Secrets (8 vars).
+- Deploy Streamlit Cloud dengan secrets `MYSQL_*`.
+- Trigger `workflow_dispatch` verifikasi pipeline end-to-end.
+- Setelah 7+ hari data: screenshot dashboard, link live demo.
