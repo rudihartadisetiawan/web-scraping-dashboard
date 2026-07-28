@@ -75,7 +75,7 @@ Yang harus ada:
 | Layer | Tools |
 |---|---|
 | Data collection | Python, `requests` (eBay API), `BeautifulSoup`/`Playwright` (scraping pelengkap) |
-| Storage | MySQL hosted (Alibaba Cloud PolarDB for MySQL — always free tier 2C8G + 50GB, 100% MySQL-compatible, kompatibel juga PostgreSQL/Oracle). Alasan: scraper (GitHub Actions) dan dashboard (Streamlit Cloud) jalan di dua environment terpisah yang butuh akses ke database yang sama, sehingga butuh DB terpisah yang bisa dihubungi dari keduanya |
+| Storage | MySQL hosted (Aiven for MySQL — free tier, managed, public endpoint). Alasan: scraper (GitHub Actions) dan dashboard (Streamlit Cloud) jalan di dua environment terpisah yang butuh akses ke database yang sama, sehingga butuh DB cloud yang bisa dihubungi dari keduanya |
 | Scheduling | GitHub Actions (cron) |
 | Analisis | pandas |
 | Dashboard | Streamlit (dengan custom CSS untuk keluar dari tampilan default) |

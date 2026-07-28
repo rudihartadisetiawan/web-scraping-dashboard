@@ -1,6 +1,7 @@
 """Database connection module using SQLAlchemy connection pooling.
 
 Credentials are read exclusively from environment variables.
+Supports Aiven and other cloud MySQL providers that require SSL/TLS.
 """
 
 import os
@@ -19,6 +20,7 @@ def get_connection() -> Engine:
     user = os.environ.get("MYSQL_USER", "")
     password = os.environ.get("MYSQL_PASSWORD", "")
     database = os.environ.get("MYSQL_DATABASE", "")
+    ssl_mode = os.environ.get("MYSQL_SSL_MODE", "PREFERRED").upper()
 
     if not all([host, port, user, database]):
         raise ValueError(
@@ -30,8 +32,25 @@ def get_connection() -> Engine:
         f"mysql+pymysql://{user}:{password}@{host}:{port}/{database}"
         "?charset=utf8mb4"
     )
+
+    connect_args: dict = {}
+
+    if ssl_mode == "REQUIRED":
+        # SSL without CA verification — encrypted, works with Aiven free tier
+        connect_args["ssl"] = {"check_hostname": False}
+    elif ssl_mode == "DISABLED":
+        # local development — no SSL
+        pass
+    elif ssl_mode == "VERIFY_CA":
+        # SSL with custom CA cert from MYSQL_SSL_CA env var
+        ca_path = os.environ.get("MYSQL_SSL_CA", "")
+        if ca_path:
+            connect_args["ssl"] = {"ca": ca_path}
+        else:
+            connect_args["ssl"] = {"check_hostname": False}
+
     # pool_pre_ping reconnects if a stale connection is detected
-    return create_engine(connection_url, pool_pre_ping=True)
+    return create_engine(connection_url, pool_pre_ping=True, connect_args=connect_args)
 
 
 def test_connection() -> bool:

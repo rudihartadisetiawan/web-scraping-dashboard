@@ -7,7 +7,7 @@
 - Rewrite opencode.json: 4 agent (Manager/Backend/Frontend/Security) pakai model tier-sesuai AGENTS.md untuk efisiensi budget (semua model terverifikasi tersedia via `opencode models`).
 - Install plugin `opencode-rate-limit-fallback` → ditambahkan ke root config plugin array.
 - Security agent kembali ke `opencode-go/qwen3.7-max` (reasoning kuat untuk review security, jarang dipanggil jadi kuota ketat tidak masalah; keterangan user).
-- Switch storage SQLite → MySQL hosted (Alibaba Cloud PolarDB for MySQL — always free tier 2C8G + 50GB, 100% MySQL-compatible). Alasan: scraper (GitHub Actions) dan dashboard (Streamlit Cloud) jalan di 2 environment terpisah yang butuh akses DB sama.
+- Switch storage SQLite → MySQL hosted (Aiven for MySQL — free tier, managed, public endpoint). Alasan: scraper (GitHub Actions) dan dashboard (Streamlit Cloud) jalan di 2 environment terpisah yang butuh akses DB sama.
 - Update AGENTS.md: backend rules + aturan connection pooling MySQL; security rules + eksplisit kredensial MySQL wajib env var/secrets.
 - Update PRD.md: flow diagram & tech stack table pakai MySQL hosted.
 
@@ -16,7 +16,7 @@
 **Next:**
 - Saat kerja Frontend dimulai: install skill `streamlit/agent-skills@developing-with-streamlit` ke `.opencode/skills/streamlit/`.
 - Mulai implementasi backend: skema MySQL + scraper eBay Browse API. Pastikan connection pooling (SQLAlchemy pool_pre_ping) sejak awal.
-- Provider MySQL locked: Alibaba Cloud PolarDB for MySQL (always free tier). Next: daftar akun, ambil connection string, simpan sebagai GitHub Actions secret + Streamlit secret saat implementasi backend mulai.
+- Provider MySQL locked: Aiven for MySQL (free tier). Next: daftar akun, ambil connection string, simpan sebagai GitHub Actions secret + Streamlit secret saat implementasi backend mulai.
 
 ## Session 2 — 2026-07-28 (continued)
 
@@ -138,10 +138,10 @@
 
 **Blocker:**
 - GitHub Actions secrets (`EBAY_*` + `MYSQL_*`) belum di-set — workflow akan fail kalau dijalankan sekarang.
-- Alibaba Cloud PolarDB belum setup (sesuai Session 1). GitHub Actions runner tidak bisa akses MySQL `127.0.0.1`. Tanpa DB cloud, workflow tidak bisa insert data.
+- Aiven MySQL belum setup (sesuai Session 1). GitHub Actions runner tidak bisa akses MySQL `127.0.0.1`. Tanpa DB cloud, workflow tidak bisa insert data.
 
 **Next:**
-- Setup Alibaba Cloud PolarDB MySQL (always free tier) → ambil connection string → set sebagai GitHub Secrets.
+- Setup Aiven MySQL (free tier) → ambil connection string + CA cert → set sebagai GitHub Secrets.
 - Set 8 GitHub Actions secrets → trigger `workflow_dispatch` manual untuk verifikasi.
 - Deploy Streamlit Cloud dengan secrets `MYSQL_*`.
 - Setelah data ≥7 hari: screenshot dashboard, README, CASE_STUDY.
@@ -159,12 +159,12 @@
 - Buat `CASE_STUDY.md` — sudut pandang reseller/dropshipper, sebelum/sesudah, contoh konkret, trust signals.
 
 **Blocker:**
-- Alibaba Cloud PolarDB MySQL belum setup (butuh daftar akun).
-- GitHub Actions secrets belum di-set (tergantung PolarDB).
+- Aiven MySQL belum setup (butuh daftar akun).
+- GitHub Actions secrets belum di-set (tergantung Aiven).
 - Streamlit Cloud belum deploy (tergantung DB cloud).
 
 **Next:**
-- Setup Alibaba Cloud PolarDB → dapat connection string → set GitHub Secrets (8 vars).
+- Setup Aiven MySQL → dapat connection string → set GitHub Secrets (8 vars + SSL) → trigger workflow_dispatch.
 - Deploy Streamlit Cloud dengan secrets `MYSQL_*`.
 - Trigger `workflow_dispatch` verifikasi pipeline end-to-end.
 - Setelah 7+ hari data: screenshot dashboard, link live demo.

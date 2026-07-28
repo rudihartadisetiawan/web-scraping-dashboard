@@ -14,6 +14,15 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
+# Streamlit Cloud injects credentials via st.secrets, but db.py reads
+# os.environ. Bridge them here (local .env overrides take priority).
+try:
+    for _key, _val in st.secrets.items():
+        if isinstance(_val, str) and _key not in os.environ:
+            os.environ[_key] = _val
+except Exception:
+    pass  # no secrets configured yet — fine, will use os.environ directly
+
 # Make sibling packages importable when running from dashboard/
 _ROOT = Path(__file__).resolve().parent.parent
 if str(_ROOT) not in sys.path:

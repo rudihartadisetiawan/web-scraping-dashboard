@@ -51,7 +51,7 @@ eBay Browse API (scheduled daily)
 | Layer | Tool |
 |---|---|
 | Data collection | Python 3.12, `requests` (eBay Browse API) |
-| Storage | MySQL (Alibaba Cloud PolarDB free tier — MySQL 100% compatible) |
+| Storage | MySQL (Aiven for MySQL — free tier, managed cloud) |
 | Scheduling | GitHub Actions |
 | Analysis | `pandas` + parameterized SQL |
 | Dashboard | `streamlit` with custom CSS design tokens |

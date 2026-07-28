@@ -33,6 +33,7 @@ jobs:
           MYSQL_USER: ${{ secrets.MYSQL_USER }}
           MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
           MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+          MYSQL_SSL_MODE: ${{ secrets.MYSQL_SSL_MODE }}
         run: python scraper/fetcher.py
 
       - name: Log completion
