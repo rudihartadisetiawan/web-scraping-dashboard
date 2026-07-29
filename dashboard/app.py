@@ -14,6 +14,13 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
+# Load .env for local development (Streamlit Cloud uses st.secrets instead)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 # Streamlit Cloud injects credentials via st.secrets, but db.py reads
 # os.environ. Bridge them here (local .env overrides take priority).
 try:
