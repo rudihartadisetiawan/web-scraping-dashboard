@@ -2,7 +2,7 @@
 
 **Live dashboard** for monitoring sneaker prices on eBay — built for international resellers and dropshippers who need reliable, daily-updated pricing intelligence.
 
-> *Portfolio project. Live demo: [Streamlit Cloud link coming soon]*
+> *Portfolio project. Live demo: [web-scraping-dashboad.streamlit.app](https://web-scraping-dashboad.streamlit.app/)*
 
 ---
 
