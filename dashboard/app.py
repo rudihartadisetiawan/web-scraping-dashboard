@@ -245,7 +245,7 @@ def _css() -> None:
 # --------------------------------------------------------------------------- #
 # Data access (cached)
 # --------------------------------------------------------------------------- #
-@st.cache_data(ttl=300, show_spinner=False)
+@st.cache_resource(ttl=300, show_spinner=False)
 def _engine():
     return get_connection()
 
