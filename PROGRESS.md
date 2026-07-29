@@ -185,3 +185,6 @@
 - eBay sandbox fetch test: sukses 300 items di-fetch ke Aiven.
 
 **Status:** Dashboard live di local → Aiven. Pipeline siap deploy.
+
+- **GitHub Actions secrets** — 9 vars diset, `workflow_dispatch` sukses. Cron 06:00 UTC daily aktif.
+- **Next:** Deploy Streamlit Cloud.
